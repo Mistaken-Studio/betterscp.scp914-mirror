@@ -11,7 +11,7 @@ using Exiled.API.Features;
 namespace Mistaken.BetterSCP.SCP914
 {
     /// <inheritdoc/>
-    internal class PluginHandler : Plugin<Config>
+    internal class PluginHandler : Plugin<Config, Translation>
     {
         /// <inheritdoc/>
         public override string Author => "Mistaken Devs";
@@ -33,7 +33,7 @@ namespace Mistaken.BetterSCP.SCP914
         {
             Instance = this;
 
-            // new Handler(this);
+            new SCP914Handler(this);
 
             API.Diagnostics.Module.OnEnable(this);
 
