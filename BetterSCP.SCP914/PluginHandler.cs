@@ -17,16 +17,16 @@ namespace Mistaken.BetterSCP.SCP914
         public override string Author => "Mistaken Devs";
 
         /// <inheritdoc/>
-        public override string Name => "BetterSCP SCP079";
+        public override string Name => "BetterSCP SCP914";
 
         /// <inheritdoc/>
-        public override string Prefix => "MBSCP_079";
+        public override string Prefix => "MBSCP_914";
 
         /// <inheritdoc/>
         public override PluginPriority Priority => PluginPriority.Default;
 
         /// <inheritdoc/>
-        public override Version RequiredExiledVersion => new Version(3, 6, 2);
+        public override Version RequiredExiledVersion => new Version(3, 7, 2);
 
         /// <inheritdoc/>
         public override void OnEnabled()
