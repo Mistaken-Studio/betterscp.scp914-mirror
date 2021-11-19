@@ -38,16 +38,24 @@ namespace Mistaken.BetterSCP.SCP914
         {
             Exiled.Events.Handlers.Scp914.Activating += this.Scp914_Activating;
             Exiled.Events.Handlers.Scp914.UpgradingPlayer += this.Scp914_UpgradingPlayer;
+            Mistaken.Events.Handlers.CustomEvents.SCP914Upgrading += this.CustomEvents_SCP914Upgrading;
         }
 
         public override void OnDisable()
         {
             Exiled.Events.Handlers.Scp914.Activating -= this.Scp914_Activating;
             Exiled.Events.Handlers.Scp914.UpgradingPlayer -= this.Scp914_UpgradingPlayer;
+            Mistaken.Events.Handlers.CustomEvents.SCP914Upgrading -= this.CustomEvents_SCP914Upgrading;
         }
 
         private Player last914User;
         private Vector3 scp914OutputPosition = Vector3.zero;
+
+        private void CustomEvents_SCP914Upgrading(Mistaken.Events.EventArgs.SCP914UpgradingEventArgs ev)
+        {
+            foreach (var player in RealPlayers.List.Where(p => p.IsReadyPlayer() && p.IsAlive && Vector3.Distance(p.Position, ev.OutputPosition) < 2))
+                this.RunCoroutine(this.PunishOutput(player), "PunishOutput");
+        }
 
         private void Scp914_Activating(Exiled.Events.EventArgs.ActivatingEventArgs ev)
         {
@@ -72,14 +80,26 @@ namespace Mistaken.BetterSCP.SCP914
                             var health = ps.Health + (ps.ArtificialNormalRatio * ps.ArtificialHealth);
                             if (health <= PluginHandler.Instance.Config.DamageOnRough)
                             {
-                                // CustomAchievements.RoundEventHandler.AddProggress("914Killer", player);
+                                Events.EventHandler.OnScp914PlayerDied(new Events.Scp914PlayerDiedEventArgs(ev.Player, this.last914User, hitInfo, PluginHandler.Instance.Config.DamageOnCoarse, ev.KnobSetting));
                                 this.ServerDropEverything(ev.Player.Inventory);
-                                Events.EventHandler.OnScp914PlayerDied(new Events.Scp914PlayerDiedEventArgs(ev.Player, this.last914User, hitInfo, PluginHandler.Instance.Config.DamageOnRough, ev.KnobSetting));
-                                if (ev.Player.UserId == this.last914User.UserId && ev.Player.Role == RoleType.Scp0492)
+
+                                bool is0492 = ev.Player.Role == RoleType.Scp0492;
+
+                                ps.HurtPlayer(hitInfo, ev.Player.GameObject);
+
+                                if (ev.Player.IsAlive)
+                                    ev.Player.Kill(DamageTypes.RagdollLess);
+
+                                GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(PlayableScps.ScriptableObjects.ScpScriptableObjects.Instance.Scp173Data.TantrumPrefab);
+                                gameObject.transform.position = Exiled.API.Features.Scp914.OutputBooth.position + (Exiled.API.Features.Scp914.OutputBooth.forward * 1f);
+                                gameObject.transform.localScale = new Vector3(0.35f * gameObject.transform.localScale.x, gameObject.transform.localScale.y, 0.35f * gameObject.transform.localScale.z);
+                                NetworkServer.Spawn(gameObject);
+
+                                if (ev.Player.UserId == this.last914User.UserId && is0492)
                                     MapPlus.Broadcast("Better 914", 10, $"{this.last914User.Nickname} has commited suicide in 914 as Zombie", Broadcast.BroadcastFlags.AdminChat);
                             }
-
-                            ps.HurtPlayer(hitInfo, ev.Player.GameObject);
+                            else
+                                ps.HurtPlayer(hitInfo, ev.Player.GameObject);
                         }
 
                         break;
@@ -90,14 +110,26 @@ namespace Mistaken.BetterSCP.SCP914
                             var health = ps.Health + (ps.ArtificialNormalRatio * ps.ArtificialHealth);
                             if (health <= PluginHandler.Instance.Config.DamageOnCoarse)
                             {
-                                // CustomAchievements.RoundEventHandler.AddProggress("914Killer", player);
-                                this.ServerDropEverything(ev.Player.Inventory);
                                 Events.EventHandler.OnScp914PlayerDied(new Events.Scp914PlayerDiedEventArgs(ev.Player, this.last914User, hitInfo, PluginHandler.Instance.Config.DamageOnCoarse, ev.KnobSetting));
-                                if (ev.Player.UserId == this.last914User.UserId && ev.Player.Role == RoleType.Scp0492)
+                                this.ServerDropEverything(ev.Player.Inventory);
+
+                                bool is0492 = ev.Player.Role == RoleType.Scp0492;
+
+                                ps.HurtPlayer(hitInfo, ev.Player.GameObject);
+
+                                if (ev.Player.IsAlive)
+                                    ev.Player.Kill(DamageTypes.RagdollLess);
+
+                                GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(PlayableScps.ScriptableObjects.ScpScriptableObjects.Instance.Scp173Data.TantrumPrefab);
+                                gameObject.transform.position = Exiled.API.Features.Scp914.OutputBooth.position + (Exiled.API.Features.Scp914.OutputBooth.forward * 1f);
+                                gameObject.transform.localScale = new Vector3(0.35f * gameObject.transform.localScale.x, gameObject.transform.localScale.y, 0.35f * gameObject.transform.localScale.z);
+                                NetworkServer.Spawn(gameObject);
+
+                                if (ev.Player.UserId == this.last914User.UserId && is0492)
                                     MapPlus.Broadcast("Better 914", 10, $"{this.last914User.Nickname} has commited suicide in 914 as Zombie", Broadcast.BroadcastFlags.AdminChat);
                             }
-
-                            ps.HurtPlayer(hitInfo, ev.Player.GameObject);
+                            else
+                                ps.HurtPlayer(hitInfo, ev.Player.GameObject);
                             if (ev.Player.Team != Team.SCP)
                                 new Usable(ItemType.Medkit).Spawn(ev.OutputPosition + Vector3.up);
                         }
@@ -116,9 +148,6 @@ namespace Mistaken.BetterSCP.SCP914
 
                         break;
                 }
-
-                if (Vector3.Distance(ev.Player.Position, ev.OutputPosition) < 2)
-                    this.RunCoroutine(this.PunishOutput(ev.Player), "PunishOutput");
             }
         }
 
@@ -129,7 +158,7 @@ namespace Mistaken.BetterSCP.SCP914
 
             for (int i = 0; i < 10 * 3; i++)
             {
-                player.Hurt(player.Health / 50, DamageTypes.Bleeding, "*SCP 914");
+                player.Hurt(player.Health / 5, DamageTypes.Bleeding, "*SCP 914");
                 yield return Timing.WaitForSeconds(0.1f);
             }
 
