@@ -11,17 +11,14 @@ namespace Mistaken.BetterSCP.SCP914.Events
 {
     public class Scp914PlayerHurtEventArgs : EventArgs
     {
-        public Scp914PlayerHurtEventArgs(Player target, float damage, Scp914.Scp914KnobSetting knobSetting = default, bool isOutput = false)
+        public Scp914PlayerHurtEventArgs(DamageHandler handler, Scp914.Scp914KnobSetting knobSetting = default, bool isOutput = false)
         {
-            this.Target = target;
-            this.Damage = damage;
+            this.Handler = handler;
             this.KnobSetting = knobSetting;
             this.IsOutput = isOutput;
         }
 
-        public Player Target { get; set; }
-
-        public float Damage { get; set; }
+        public DamageHandler Handler { get; set; }
 
         public bool IsOutput { get; set; }
 
