@@ -40,6 +40,7 @@ namespace Mistaken.BetterSCP.SCP914
             Exiled.Events.Handlers.Scp914.Activating += this.Scp914_Activating;
             Exiled.Events.Handlers.Scp914.UpgradingPlayer += this.Scp914_UpgradingPlayer;
             Exiled.Events.Handlers.Player.Dying += this.Player_Dying;
+            Exiled.Events.Handlers.Player.SpawningRagdoll += this.Player_SpawningRagdoll;
             Mistaken.Events.Handlers.CustomEvents.SCP914Upgrading += this.CustomEvents_SCP914Upgrading;
         }
 
@@ -49,17 +50,24 @@ namespace Mistaken.BetterSCP.SCP914
             Exiled.Events.Handlers.Scp914.Activating -= this.Scp914_Activating;
             Exiled.Events.Handlers.Scp914.UpgradingPlayer -= this.Scp914_UpgradingPlayer;
             Exiled.Events.Handlers.Player.Dying -= this.Player_Dying;
+            Exiled.Events.Handlers.Player.SpawningRagdoll -= this.Player_SpawningRagdoll;
             Mistaken.Events.Handlers.CustomEvents.SCP914Upgrading -= this.CustomEvents_SCP914Upgrading;
         }
 
         private Player last914User;
         private Vector3 scp914OutputPosition = Vector3.zero;
-        private HashSet<DamageHandler> customDamageHandlers = new HashSet<DamageHandler>();
+        private HashSet<DamageHandlerBase> customDamageHandlers = new HashSet<DamageHandlerBase>();
 
         private void CustomEvents_SCP914Upgrading(Mistaken.Events.EventArgs.SCP914UpgradingEventArgs ev)
         {
             foreach (var player in RealPlayers.List.Where(p => p.IsReadyPlayer() && p.IsAlive && Vector3.Distance(p.Position, ev.OutputPosition) < 2))
                 this.RunCoroutine(this.PunishOutput(player), "PunishOutput");
+        }
+        private void Player_SpawningRagdoll(Exiled.Events.EventArgs.SpawningRagdollEventArgs ev)
+        {
+            if (!this.customDamageHandlers.Contains(ev.DamageHandlerBase))
+                return;
+            ev.IsAllowed = false;
         }
 
         private void Server_RoundStarted()
@@ -83,22 +91,19 @@ namespace Mistaken.BetterSCP.SCP914
                 {
                     case Scp914.Scp914KnobSetting.Rough:
                         {
-                            var dmgHandler = new DamageHandler(ev.Player, new CustomReasonDamageHandler("SCP914", PluginHandler.Instance.Config.DamageOnRough));
+                            var dmgHandler = new DamageHandler(ev.Player, new CustomReasonDamageHandler("Melted using SCP914", PluginHandler.Instance.Config.DamageOnRough));
                             dmgHandler.Attacker = this.last914User;
-                            this.customDamageHandlers.Add(dmgHandler);
+                            this.customDamageHandlers.Add(dmgHandler.Base);
                             var reason = dmgHandler.Base.ApplyDamage(ev.Player.ReferenceHub);
                             Events.EventHandler.OnScp914PlayerHurt(new Events.Scp914PlayerHurtEventArgs(dmgHandler, ev.KnobSetting));
                             if (reason == DamageHandlerBase.HandlerOutput.Death)
                             {
+                                bool is0492 = ev.Player.Role == RoleType.Scp0492;
+                                ev.Player.Hurt(dmgHandler.Base);
                                 dmgHandler = new DamageHandler(ev.Player, new CustomReasonDamageHandler(PluginHandler.Instance.Translation.Scp914_rough, PluginHandler.Instance.Config.DamageOnCoarse));
                                 Events.EventHandler.OnScp914PlayerDied(new Events.Scp914PlayerDiedEventArgs(dmgHandler, ev.KnobSetting));
 
-                                bool is0492 = ev.Player.Role == RoleType.Scp0492;
-
-                                GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(PlayableScps.ScriptableObjects.ScpScriptableObjects.Instance.Scp173Data.TantrumPrefab);
-                                gameObject.transform.position = Exiled.API.Features.Scp914.OutputBooth.position + (Exiled.API.Features.Scp914.OutputBooth.forward * 1f);
-                                gameObject.transform.localScale = new Vector3(0.35f * gameObject.transform.localScale.x, gameObject.transform.localScale.y, 0.35f * gameObject.transform.localScale.z);
-                                NetworkServer.Spawn(gameObject);
+                                this.SpawnPool();
 
                                 if (ev.Player.UserId == this.last914User.UserId && is0492)
                                     MapPlus.Broadcast("Better 914", 10, $"{this.last914User.Nickname} has commited suicide in 914 as Zombie", Broadcast.BroadcastFlags.AdminChat);
@@ -108,22 +113,19 @@ namespace Mistaken.BetterSCP.SCP914
                         break;
                     case Scp914.Scp914KnobSetting.Coarse:
                         {
-                            var dmgHandler = new DamageHandler(ev.Player, new CustomReasonDamageHandler("SCP914", PluginHandler.Instance.Config.DamageOnCoarse));
+                            var dmgHandler = new DamageHandler(ev.Player, new CustomReasonDamageHandler("Melted using SCP914", PluginHandler.Instance.Config.DamageOnCoarse));
                             dmgHandler.Attacker = this.last914User;
-                            this.customDamageHandlers.Add(dmgHandler);
+                            this.customDamageHandlers.Add(dmgHandler.Base);
                             var reason = dmgHandler.Base.ApplyDamage(ev.Player.ReferenceHub);
                             Events.EventHandler.OnScp914PlayerHurt(new Events.Scp914PlayerHurtEventArgs(dmgHandler, ev.KnobSetting));
                             if (reason == DamageHandlerBase.HandlerOutput.Death)
                             {
+                                bool is0492 = ev.Player.Role == RoleType.Scp0492;
                                 dmgHandler = new DamageHandler(ev.Player, new CustomReasonDamageHandler(PluginHandler.Instance.Translation.Scp914_coarse, PluginHandler.Instance.Config.DamageOnCoarse));
+                                ev.Player.Hurt(dmgHandler.Base);
                                 Events.EventHandler.OnScp914PlayerDied(new Events.Scp914PlayerDiedEventArgs(dmgHandler, ev.KnobSetting));
 
-                                bool is0492 = ev.Player.Role == RoleType.Scp0492;
-
-                                GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(PlayableScps.ScriptableObjects.ScpScriptableObjects.Instance.Scp173Data.TantrumPrefab);
-                                gameObject.transform.position = Exiled.API.Features.Scp914.OutputBooth.position + (Exiled.API.Features.Scp914.OutputBooth.forward * 1f);
-                                gameObject.transform.localScale = new Vector3(0.35f * gameObject.transform.localScale.x, gameObject.transform.localScale.y, 0.35f * gameObject.transform.localScale.z);
-                                NetworkServer.Spawn(gameObject);
+                                this.SpawnPool();
 
                                 if (ev.Player.UserId == this.last914User.UserId && is0492)
                                     MapPlus.Broadcast("Better 914", 10, $"{this.last914User.Nickname} has commited suicide in 914 as Zombie", Broadcast.BroadcastFlags.AdminChat);
@@ -152,7 +154,7 @@ namespace Mistaken.BetterSCP.SCP914
 
         private void Player_Dying(Exiled.Events.EventArgs.DyingEventArgs ev)
         {
-            if (this.customDamageHandlers.Contains(ev.Handler))
+            if (this.customDamageHandlers.Contains(ev.Handler.Base))
                 this.ServerDropEverything(ev.Target.Inventory);
         }
 
@@ -164,11 +166,11 @@ namespace Mistaken.BetterSCP.SCP914
                 if (!player.IsAlive)
                     break;
                 damage += player.Health / 5;
-                new CustomReasonDamageHandler("SCP914", player.Health / 5).ApplyDamage(player.ReferenceHub);
+                player.Hurt(new CustomReasonDamageHandler("Stealing is bad :/", player.Health / 5));
                 yield return Timing.WaitForSeconds(0.1f);
             }
 
-            var dmgHandler = new DamageHandler(player, new CustomReasonDamageHandler("SCP914", damage));
+            var dmgHandler = new DamageHandler(player, new CustomReasonDamageHandler("Stealing is bad :/", damage));
             dmgHandler.Attacker = this.last914User;
             Events.EventHandler.OnScp914PlayerHurt(new Events.Scp914PlayerHurtEventArgs(dmgHandler, isOutput: true));
         }
@@ -179,9 +181,7 @@ namespace Mistaken.BetterSCP.SCP914
             foreach (KeyValuePair<ItemType, ushort> item in inv.UserInventory.ReserveAmmo)
             {
                 if (item.Value > 0)
-                {
                     hashSet.Add(item.Key);
-                }
             }
 
             foreach (ItemType item2 in hashSet)
@@ -190,9 +190,7 @@ namespace Mistaken.BetterSCP.SCP914
                 if (!(pickups is null))
                 {
                     foreach (var pickup in pickups)
-                    {
                         pickup.transform.position = this.scp914OutputPosition + Vector3.up;
-                    }
                 }
             }
 
@@ -206,6 +204,14 @@ namespace Mistaken.BetterSCP.SCP914
             HashSetPool<ItemType>.Shared.Return(hashSet);
         }
 
+        private void SpawnPool()
+        {
+            GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(PlayableScps.ScriptableObjects.ScpScriptableObjects.Instance.Scp173Data.TantrumPrefab);
+            gameObject.transform.position = Exiled.API.Features.Scp914.OutputBooth.position + (Exiled.API.Features.Scp914.OutputBooth.forward * 1f);
+            gameObject.transform.localScale = new Vector3(0.35f * gameObject.transform.localScale.x, gameObject.transform.localScale.y, 0.35f * gameObject.transform.localScale.z);
+            NetworkServer.Spawn(gameObject);
+        }
+
         private List<AmmoPickup> ServerDropAmmo(Inventory inv, ItemType ammoType, ushort amount, bool checkMinimals = false)
         {
             if (inv.UserInventory.ReserveAmmo.TryGetValue(ammoType, out ushort value) && InventoryItemLoader.AvailableItems.TryGetValue(ammoType, out ItemBase value2))
@@ -217,13 +223,11 @@ namespace Mistaken.BetterSCP.SCP914
                 }
 
                 AmmoPickup ammoPickup;
-                if (checkMinimals && (object)(ammoPickup = value2.PickupDropModel as AmmoPickup) != null)
+                if (checkMinimals && (ammoPickup = value2.PickupDropModel as AmmoPickup) != null)
                 {
-                    int num = Mathf.FloorToInt((float)(int)ammoPickup.SavedAmmo / 2f);
+                    int num = Mathf.FloorToInt(ammoPickup.SavedAmmo / 2f);
                     if (amount < num && value > num)
-                    {
                         amount = (ushort)num;
-                    }
                 }
 
                 List<AmmoPickup> ammoPickups = new List<AmmoPickup>();
@@ -239,16 +243,14 @@ namespace Mistaken.BetterSCP.SCP914
                     pickupSyncInfo.Position = inv.transform.position;
                     PickupSyncInfo psi = pickupSyncInfo;
                     AmmoPickup ammoPickup2;
-                    if ((object)(ammoPickup2 = inv.ServerCreatePickup(value2, psi) as AmmoPickup) != null)
+                    if ((ammoPickup2 = inv.ServerCreatePickup(value2, psi) as AmmoPickup) != null)
                     {
-                        ushort num4 = ammoPickup2.NetworkSavedAmmo = (ushort)Mathf.Min(ammoPickup2.MaxAmmo, num2);
+                        ammoPickup2.NetworkSavedAmmo = (ushort)Mathf.Min(ammoPickup2.MaxAmmo, num2);
                         num2 -= ammoPickup2.SavedAmmo;
                         ammoPickups.Add(ammoPickup2);
                     }
                     else
-                    {
                         num2--;
-                    }
                 }
 
                 return ammoPickups;
