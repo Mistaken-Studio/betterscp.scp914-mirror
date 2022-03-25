@@ -5,7 +5,7 @@
 // -----------------------------------------------------------------------
 
 using System;
-using Exiled.API.Features;
+using Exiled.API.Features.DamageHandlers;
 
 namespace Mistaken.BetterSCP.SCP914.Events
 {
