@@ -1,13 +1,13 @@
-﻿// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 // <copyright file="SCP914Handler.cs" company="Mistaken">
 // Copyright (c) Mistaken. All rights reserved.
 // </copyright>
 // -----------------------------------------------------------------------
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Exiled.API.Features;
+using Exiled.API.Features.DamageHandlers;
 using Exiled.API.Features.Items;
 using Exiled.API.Interfaces;
 using InventorySystem;
@@ -56,13 +56,14 @@ namespace Mistaken.BetterSCP.SCP914
 
         private Player last914User;
         private Vector3 scp914OutputPosition = Vector3.zero;
-        private HashSet<DamageHandlerBase> customDamageHandlers = new HashSet<DamageHandlerBase>();
+        private HashSet<PlayerStatsSystem.DamageHandlerBase> customDamageHandlers = new HashSet<PlayerStatsSystem.DamageHandlerBase>();
 
         private void CustomEvents_SCP914Upgrading(Mistaken.Events.EventArgs.SCP914UpgradingEventArgs ev)
         {
             foreach (var player in RealPlayers.List.Where(p => p.IsReadyPlayer() && p.IsAlive && Vector3.Distance(p.Position, ev.OutputPosition) < 2))
                 this.RunCoroutine(this.PunishOutput(player), "PunishOutput");
         }
+
         private void Player_SpawningRagdoll(Exiled.Events.EventArgs.SpawningRagdollEventArgs ev)
         {
             if (!this.customDamageHandlers.Contains(ev.DamageHandlerBase))
@@ -96,7 +97,7 @@ namespace Mistaken.BetterSCP.SCP914
                             this.customDamageHandlers.Add(dmgHandler.Base);
                             var reason = dmgHandler.Base.ApplyDamage(ev.Player.ReferenceHub);
                             Events.EventHandler.OnScp914PlayerHurt(new Events.Scp914PlayerHurtEventArgs(dmgHandler, ev.KnobSetting));
-                            if (reason == DamageHandlerBase.HandlerOutput.Death)
+                            if (reason == PlayerStatsSystem.DamageHandlerBase.HandlerOutput.Death)
                             {
                                 bool is0492 = ev.Player.Role == RoleType.Scp0492;
                                 ev.Player.Hurt(dmgHandler.Base);
@@ -118,7 +119,7 @@ namespace Mistaken.BetterSCP.SCP914
                             this.customDamageHandlers.Add(dmgHandler.Base);
                             var reason = dmgHandler.Base.ApplyDamage(ev.Player.ReferenceHub);
                             Events.EventHandler.OnScp914PlayerHurt(new Events.Scp914PlayerHurtEventArgs(dmgHandler, ev.KnobSetting));
-                            if (reason == DamageHandlerBase.HandlerOutput.Death)
+                            if (reason == PlayerStatsSystem.DamageHandlerBase.HandlerOutput.Death)
                             {
                                 bool is0492 = ev.Player.Role == RoleType.Scp0492;
                                 dmgHandler = new DamageHandler(ev.Player, new CustomReasonDamageHandler(PluginHandler.Instance.Translation.Scp914_coarse, PluginHandler.Instance.Config.DamageOnCoarse));
@@ -131,14 +132,14 @@ namespace Mistaken.BetterSCP.SCP914
                                     MapPlus.Broadcast("Better 914", 10, $"{this.last914User.Nickname} has commited suicide in 914 as Zombie", Broadcast.BroadcastFlags.AdminChat);
                             }
 
-                            if (ev.Player.Team != Team.SCP)
-                                new Usable(ItemType.Medkit).Spawn(ev.OutputPosition + Vector3.up);
+                            if (ev.Player.Role.Team != Team.SCP)
+                                Item.Create(ItemType.Medkit).Spawn(ev.OutputPosition + Vector3.up);
                         }
 
                         break;
                     case Scp914.Scp914KnobSetting.VeryFine:
                         {
-                            if (ev.Player.Team == Team.SCP)
+                            if (ev.Player.Role.Team == Team.SCP)
                                 return;
                             var num = UnityEngine.Random.Range(-10, 5);
                             byte min = ev.Player.ReferenceHub.playerEffectsController.GetEffect<CustomPlayerEffects.Scp207>().Intensity;
