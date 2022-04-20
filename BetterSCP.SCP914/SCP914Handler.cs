@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 // <copyright file="SCP914Handler.cs" company="Mistaken">
 // Copyright (c) Mistaken. All rights reserved.
 // </copyright>
@@ -63,6 +63,7 @@ namespace Mistaken.BetterSCP.SCP914
             foreach (var player in RealPlayers.List.Where(p => p.IsReadyPlayer() && p.IsAlive && Vector3.Distance(p.Position, ev.OutputPosition) < 2))
                 this.RunCoroutine(this.PunishOutput(player), "PunishOutput");
         }
+
         private void Player_SpawningRagdoll(Exiled.Events.EventArgs.SpawningRagdollEventArgs ev)
         {
             if (!this.customDamageHandlers.Contains(ev.DamageHandlerBase))
