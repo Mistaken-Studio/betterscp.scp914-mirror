@@ -63,6 +63,7 @@ namespace Mistaken.BetterSCP.SCP914
             foreach (var player in RealPlayers.List.Where(p => p.IsReadyPlayer() && p.IsAlive && Vector3.Distance(p.Position, ev.OutputPosition) < 2))
                 this.RunCoroutine(this.PunishOutput(player), "PunishOutput");
         }
+
         private void Player_SpawningRagdoll(Exiled.Events.EventArgs.SpawningRagdollEventArgs ev)
         {
             if (!this.customDamageHandlers.Contains(ev.DamageHandlerBase))
@@ -83,6 +84,8 @@ namespace Mistaken.BetterSCP.SCP914
 
         private void Scp914_UpgradingPlayer(Exiled.Events.EventArgs.UpgradingPlayerEventArgs ev)
         {
+            if (ev.Player.IsGodModeEnabled)
+                return;
             if (this.scp914OutputPosition != ev.OutputPosition)
                 this.scp914OutputPosition = ev.OutputPosition;
             if (ev.Player.IsReadyPlayer() && ev.Player.IsAlive)
