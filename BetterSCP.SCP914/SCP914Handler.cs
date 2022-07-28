@@ -84,6 +84,8 @@ namespace Mistaken.BetterSCP.SCP914
 
         private void Scp914_UpgradingPlayer(Exiled.Events.EventArgs.UpgradingPlayerEventArgs ev)
         {
+            if (ev.Player.IsGodModeEnabled)
+                return;
             if (this.scp914OutputPosition != ev.OutputPosition)
                 this.scp914OutputPosition = ev.OutputPosition;
             if (ev.Player.IsReadyPlayer() && ev.Player.IsAlive)
