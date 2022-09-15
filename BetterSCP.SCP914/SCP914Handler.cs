@@ -12,6 +12,7 @@ using Exiled.API.Features.Items;
 using Exiled.API.Interfaces;
 using InventorySystem;
 using InventorySystem.Items;
+using InventorySystem.Items.Firearms;
 using InventorySystem.Items.Firearms.Ammo;
 using InventorySystem.Items.Pickups;
 using MEC;
@@ -39,6 +40,7 @@ namespace Mistaken.BetterSCP.SCP914
             Exiled.Events.Handlers.Server.RoundStarted += this.Server_RoundStarted;
             Exiled.Events.Handlers.Scp914.Activating += this.Scp914_Activating;
             Exiled.Events.Handlers.Scp914.UpgradingPlayer += this.Scp914_UpgradingPlayer;
+            Exiled.Events.Handlers.Scp914.UpgradingItem += this.Scp914_UpgradingItem;
             Exiled.Events.Handlers.Player.Dying += this.Player_Dying;
             Exiled.Events.Handlers.Player.SpawningRagdoll += this.Player_SpawningRagdoll;
             Mistaken.Events.Handlers.CustomEvents.SCP914Upgrading += this.CustomEvents_SCP914Upgrading;
@@ -49,6 +51,7 @@ namespace Mistaken.BetterSCP.SCP914
             Exiled.Events.Handlers.Server.RoundStarted -= this.Server_RoundStarted;
             Exiled.Events.Handlers.Scp914.Activating -= this.Scp914_Activating;
             Exiled.Events.Handlers.Scp914.UpgradingPlayer -= this.Scp914_UpgradingPlayer;
+            Exiled.Events.Handlers.Scp914.UpgradingItem -= this.Scp914_UpgradingItem;
             Exiled.Events.Handlers.Player.Dying -= this.Player_Dying;
             Exiled.Events.Handlers.Player.SpawningRagdoll -= this.Player_SpawningRagdoll;
             Mistaken.Events.Handlers.CustomEvents.SCP914Upgrading -= this.CustomEvents_SCP914Upgrading;
@@ -214,13 +217,15 @@ namespace Mistaken.BetterSCP.SCP914
                         {
                             case int i when i <= 6:
                                 {
-                                    Item.Create(ItemType.GunCOM18).Spawn(ev.OutputPosition + Vector3.up);
+                                    var firearm = Item.Create(ItemType.GunCOM18).Spawn(ev.OutputPosition + Vector3.up).Base as FirearmPickup;
+                                    firearm.NetworkStatus = new FirearmStatus(2, firearm.NetworkStatus.Flags, firearm.NetworkStatus.Attachments);
                                     break;
                                 }
 
                             case int i when i <= 12:
                                 {
-                                    Item.Create(ItemType.GunRevolver).Spawn(ev.OutputPosition + Vector3.up);
+                                    var firearm = Item.Create(ItemType.GunRevolver).Spawn(ev.OutputPosition + Vector3.up).Base as FirearmPickup;
+                                    firearm.NetworkStatus = new FirearmStatus(2, firearm.NetworkStatus.Flags, firearm.NetworkStatus.Attachments);
                                     break;
                                 }
 
