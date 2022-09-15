@@ -155,6 +155,135 @@ namespace Mistaken.BetterSCP.SCP914
             }
         }
 
+        private void Scp914_UpgradingItem(Exiled.Events.EventArgs.UpgradingItemEventArgs ev)
+        {
+            if (!ev.IsAllowed)
+                return;
+            if (ev.Item.Type != ItemType.Coin)
+                return;
+
+            var random = UnityEngine.Random.Range(1, 101);
+            switch (ev.KnobSetting)
+            {
+                case Scp914.Scp914KnobSetting.OneToOne:
+                    {
+                        switch (random)
+                        {
+                            case int i when i <= 10:
+                                {
+                                    (Item.Create(ItemType.Ammo12gauge).Spawn(ev.OutputPosition + Vector3.up).Base as AmmoPickup).NetworkSavedAmmo = 20;
+                                    break;
+                                }
+
+                            case int i when i <= 25:
+                                {
+                                    (Item.Create(ItemType.Ammo44cal).Spawn(ev.OutputPosition + Vector3.up).Base as AmmoPickup).NetworkSavedAmmo = 16;
+                                    break;
+                                }
+
+                            case int i when i <= 40:
+                                {
+                                    (Item.Create(ItemType.Ammo556x45).Spawn(ev.OutputPosition + Vector3.up).Base as AmmoPickup).NetworkSavedAmmo = 30;
+                                    break;
+                                }
+
+                            case int i when i <= 55:
+                                {
+                                    (Item.Create(ItemType.Ammo762x39).Spawn(ev.OutputPosition + Vector3.up).Base as AmmoPickup).NetworkSavedAmmo = 30;
+                                    break;
+                                }
+
+                            case int i when i <= 70:
+                                {
+                                    (Item.Create(ItemType.Ammo9x19).Spawn(ev.OutputPosition + Vector3.up).Base as AmmoPickup).NetworkSavedAmmo = 30;
+                                    break;
+                                }
+
+                            default:
+                                break;
+                        }
+
+                        ev.Item.Destroy();
+                    }
+
+                    break;
+
+                case Scp914.Scp914KnobSetting.Fine:
+                    {
+                        switch (random)
+                        {
+                            case int i when i <= 6:
+                                {
+                                    Item.Create(ItemType.GunCOM18).Spawn(ev.OutputPosition + Vector3.up);
+                                    break;
+                                }
+
+                            case int i when i <= 12:
+                                {
+                                    Item.Create(ItemType.GunRevolver).Spawn(ev.OutputPosition + Vector3.up);
+                                    break;
+                                }
+
+                            case int i when i <= 25:
+                                {
+                                    Item.Create(ItemType.ArmorLight).Spawn(ev.OutputPosition + Vector3.up);
+                                    break;
+                                }
+
+                            case int i when i <= 50:
+                                {
+                                    Item.Create(ItemType.Flashlight).Spawn(ev.OutputPosition + Vector3.up);
+                                    break;
+                                }
+
+                            default:
+                                break;
+                        }
+
+                        ev.Item.Destroy();
+                    }
+
+                    break;
+
+                case Scp914.Scp914KnobSetting.VeryFine:
+                    {
+                        switch (random)
+                        {
+                            case int i when i <= 1:
+                                {
+                                    Item.Create(ItemType.KeycardFacilityManager).Spawn(ev.OutputPosition + Vector3.up);
+                                    break;
+                                }
+
+                            case int i when i <= 10:
+                                {
+                                    Item.Create(ItemType.KeycardGuard).Spawn(ev.OutputPosition + Vector3.up);
+                                    break;
+                                }
+
+                            case int i when i <= 25:
+                                {
+                                    Item.Create(ItemType.KeycardScientist).Spawn(ev.OutputPosition + Vector3.up);
+                                    break;
+                                }
+
+                            case int i when i <= 50:
+                                {
+                                    Item.Create(ItemType.KeycardJanitor).Spawn(ev.OutputPosition + Vector3.up);
+                                    break;
+                                }
+
+                            default:
+                                break;
+                        }
+
+                        ev.Item.Destroy();
+                    }
+
+                    break;
+            }
+        }
+
         private void Player_Dying(Exiled.Events.EventArgs.DyingEventArgs ev)
         {
             if (this.customDamageHandlers.Contains(ev.Handler.Base))
@@ -209,7 +338,7 @@ namespace Mistaken.BetterSCP.SCP914
 
         private void SpawnPool()
         {
-            GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(PlayableScps.ScriptableObjects.ScpScriptableObjects.Instance.Scp173Data.TantrumPrefab);
+            GameObject gameObject = UnityEngine.Object.Instantiate(PlayableScps.ScriptableObjects.ScpScriptableObjects.Instance.Scp173Data.TantrumPrefab);
             gameObject.transform.position = Exiled.API.Features.Scp914.OutputBooth.position + (Exiled.API.Features.Scp914.OutputBooth.forward * 1f);
             gameObject.transform.localScale = new Vector3(0.35f * gameObject.transform.localScale.x, gameObject.transform.localScale.y, 0.35f * gameObject.transform.localScale.z);
             NetworkServer.Spawn(gameObject);
