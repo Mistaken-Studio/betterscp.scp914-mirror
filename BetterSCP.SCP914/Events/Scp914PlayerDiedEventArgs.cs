@@ -1,24 +1,18 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="Scp914PlayerDiedEventArgs.cs" company="Mistaken">
-// Copyright (c) Mistaken. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
-
+﻿using PlayerStatsSystem;
+using Scp914;
 using System;
-using Exiled.API.Features.DamageHandlers;
 
-namespace Mistaken.BetterSCP.SCP914.Events
+namespace Mistaken.BetterSCP.SCP914.Events;
+
+public class PlayerDiedEventArgs : EventArgs
 {
-    public class Scp914PlayerDiedEventArgs : EventArgs
+    internal PlayerDiedEventArgs(DamageHandlerBase handler, Scp914KnobSetting knobSetting)
     {
-        public Scp914PlayerDiedEventArgs(DamageHandler handler, Scp914.Scp914KnobSetting knobSetting)
-        {
-            this.Handler = handler;
-            this.KnobSetting = knobSetting;
-        }
-
-        public DamageHandler Handler { get; set; }
-
-        public Scp914.Scp914KnobSetting KnobSetting { get; set; }
+        Handler = handler;
+        KnobSetting = knobSetting;
     }
+
+    public DamageHandlerBase Handler { get; set; }
+
+    public Scp914KnobSetting KnobSetting { get; set; }
 }

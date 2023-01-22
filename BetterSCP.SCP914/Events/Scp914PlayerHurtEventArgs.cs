@@ -1,27 +1,21 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="Scp914PlayerHurtEventArgs.cs" company="Mistaken">
-// Copyright (c) Mistaken. All rights reserved.
-// </copyright>
-// -----------------------------------------------------------------------
-
+﻿using PlayerStatsSystem;
+using Scp914;
 using System;
-using Exiled.API.Features.DamageHandlers;
 
-namespace Mistaken.BetterSCP.SCP914.Events
+namespace Mistaken.BetterSCP.SCP914.Events;
+
+public class PlayerHurtEventArgs : EventArgs
 {
-    public class Scp914PlayerHurtEventArgs : EventArgs
+    internal PlayerHurtEventArgs(DamageHandlerBase handler, Scp914KnobSetting knobSetting = default, bool isOutput = false)
     {
-        public Scp914PlayerHurtEventArgs(DamageHandler handler, Scp914.Scp914KnobSetting knobSetting = default, bool isOutput = false)
-        {
-            this.Handler = handler;
-            this.KnobSetting = knobSetting;
-            this.IsOutput = isOutput;
-        }
-
-        public DamageHandler Handler { get; set; }
-
-        public bool IsOutput { get; set; }
-
-        public Scp914.Scp914KnobSetting KnobSetting { get; set; }
+        Handler = handler;
+        KnobSetting = knobSetting;
+        IsOutput = isOutput;
     }
+
+    public DamageHandlerBase Handler { get; set; }
+
+    public Scp914KnobSetting KnobSetting { get; set; }
+
+    public bool IsOutput { get; set; }
 }

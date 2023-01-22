@@ -10,7 +10,8 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Mistaken.BetterSCP.SCP914</RootNamespace>
     <AssemblyName>Mistaken.BetterSCP.SCP914</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <LangVersion>11.0</LangVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
@@ -34,20 +35,16 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Exiled.API" HintPath="$(MISTAKEN_REFERENCES)\Exiled.API.dll" />
-    <Reference Include="Exiled.Events" HintPath="$(MISTAKEN_REFERENCES)\Exiled.Events.dll" />
-    <Reference Include="Mistaken.Updater" HintPath="$(MISTAKEN_REFERENCES)\Mistaken.Updater.dll" />
     <Reference Include="0Mistaken.API" HintPath="$(MISTAKEN_REFERENCES)\0Mistaken.API.dll" />
-    <Reference Include="Mistaken.RoundLogger" HintPath="$(MISTAKEN_REFERENCES)\Mistaken.RoundLogger.dll" />
-    <Reference Include="Mistaken.Events" HintPath="$(MISTAKEN_REFERENCES)\Mistaken.Events.dll" />
-    <Reference Include="Mistaken.CommandsExtender.Admin" HintPath="$(MISTAKEN_REFERENCES)\Mistaken.CommandsExtender.Admin.dll" />
-    <Reference Include="Mistaken.AntyTeamKillSystem" HintPath="$(MISTAKEN_REFERENCES)\Mistaken.AntyTeamKillSystem.dll" />
+    <Reference Include="0Harmony" HintPath="$(MISTAKEN_REFERENCES)\0Harmony.dll" />
+    <Reference Include="PluginAPI" HintPath="$(MISTAKEN_REFERENCES)\PluginAPI.dll" />
     <Reference Include="UnityEngine.CoreModule" HintPath="$(MISTAKEN_REFERENCES)\UnityEngine.CoreModule.dll" />
     <Reference Include="UnityEngine.PhysicsModule" HintPath="$(MISTAKEN_REFERENCES)\UnityEngine.PhysicsModule.dll" />
     <Reference Include="NorthwoodLib" HintPath="$(MISTAKEN_REFERENCES)\NorthwoodLib.dll" />
     <Reference Include="Mirror" HintPath="$(MISTAKEN_REFERENCES)\Mirror.dll" />
     <Reference Include="Assembly-CSharp-firstpass" HintPath="$(MISTAKEN_REFERENCES)\Assembly-CSharp-firstpass.dll" />
     <Reference Include="Assembly-CSharp-Publicized" HintPath="$(MISTAKEN_REFERENCES)\Assembly-CSharp-Publicized.dll" />
+    <Reference Include="CommandSystem.Core" HintPath="$(MISTAKEN_REFERENCES)\CommandSystem.Core.dll" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -57,40 +54,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Events\EventHandler.cs" />
+    <Compile Include="Events\Scp914.cs" />
     <Compile Include="Events\Scp914PlayerHurtEventArgs.cs" />
     <Compile Include="Events\Scp914PlayerDiedEventArgs.cs" />
     <Compile Include="Events\Scp914PlayerRecieveScp207EffectEventArgs.cs" />
-    <Compile Include="PluginHandler.cs" />
+    <Compile Include="Plugin.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RagdollManagerPatch.cs" />
     <Compile Include="SCP914Handler.cs" />
     <Compile Include="Translation.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include=".editorconfig" />
-    <None Include="packages.config" />
-    <AdditionalFiles Include="stylecop.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <Analyzer Include="..\packages\StyleCop.Analyzers.1.1.118\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
-    <Analyzer Include="..\packages\StyleCop.Analyzers.1.1.118\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
   <PropertyGroup>
-    <PreBuildEvent>
-      nuget install
-    </PreBuildEvent>
     <PostBuildEvent>
       copy $(TargetPath) $(MISTAKEN_REFERENCES)\$(TargetFileName)
-      copy $(TargetDir)\$(TargetName).xml $(MISTAKEN_REFERENCES)\$(TargetName).xml
     </PostBuildEvent>
   </PropertyGroup>
 </Project>
