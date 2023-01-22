@@ -39,12 +39,15 @@ internal sealed class SCP914Handler
     private static Vector3 _outputPosition;
     private static Player _last914User;
 
-    private static bool OnRagdollSpawn(DamageHandlerBase handler)
+    private static bool OnRagdollSpawn(ReferenceHub player, DamageHandlerBase handler)
     {
-        if (!_customDamageHandlers.Contains(handler))
-            return true;
+        if (player is null)
+            return false;
 
-        return false;
+        if (_customDamageHandlers.Contains(handler))
+            return false;
+
+        return true;
     }
 
     [PluginEvent(ServerEventType.WaitingForPlayers)]
@@ -190,16 +193,14 @@ internal sealed class SCP914Handler
                         case int i when i <= 6:
                             {
                                 var firearm = Item.CreatePickup<FirearmPickup>(ItemType.GunCOM18, outputPosition + Vector3.up);
-                                firearm.NetworkStatus = new FirearmStatus(2, firearm.NetworkStatus.Flags, firearm.NetworkStatus.Attachments);
-                                firearm._worldmodel.ApplyStatus(firearm.NetworkStatus, ItemType.GunCOM18);
+                                firearm.NetworkStatus = new FirearmStatus(9, firearm.Status.Flags, firearm.Status.Attachments);
                                 break;
                             }
 
                         case int i when i <= 12:
                             {
                                 var firearm = Item.CreatePickup<FirearmPickup>(ItemType.GunRevolver, outputPosition + Vector3.up);
-                                firearm.NetworkStatus = new FirearmStatus(2, firearm.NetworkStatus.Flags, firearm.NetworkStatus.Attachments);
-                                firearm._worldmodel.ApplyStatus(firearm.NetworkStatus, ItemType.GunRevolver);
+                                firearm.NetworkStatus = new FirearmStatus(3, firearm.Status.Flags, firearm.Status.Attachments);
                                 break;
                             }
 

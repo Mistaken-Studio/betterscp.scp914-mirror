@@ -20,7 +20,8 @@ internal static class RagdollManagerPatch
 
         newInstructions.InsertRange(index, new CodeInstruction[]
         {
-            new CodeInstruction(OpCodes.Ldarg_1).WithLabels(label),
+            new CodeInstruction(OpCodes.Ldarg_0).WithLabels(label),
+            new(OpCodes.Ldarg_1),
             new(OpCodes.Call, AccessTools.Method(typeof(SCP914Handler), "OnRagdollSpawn")),
             new(OpCodes.Brtrue_S, skipLabel),
             new(OpCodes.Ldnull),
