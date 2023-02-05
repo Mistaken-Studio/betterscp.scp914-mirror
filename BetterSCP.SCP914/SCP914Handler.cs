@@ -39,6 +39,15 @@ internal sealed class SCP914Handler
     private static Vector3 _outputPosition;
     private static Player _last914User;
 
+    private static void SendAdminChat(string content)
+    {
+        foreach (ReferenceHub referenceHub in ReferenceHub.AllHubs)
+        {
+            if ((referenceHub.serverRoles.AdminChatPerms || referenceHub.serverRoles.RaEverywhere) && referenceHub.Mode != ClientInstanceMode.Unverified)
+                referenceHub.queryProcessor.TargetReply(referenceHub.queryProcessor.connectionToClient, content, true, false, string.Empty);
+        }
+    }
+
     private static bool OnRagdollSpawn(ReferenceHub player, DamageHandlerBase handler)
     {
         if (player is null)
@@ -91,7 +100,7 @@ internal sealed class SCP914Handler
                         SpawnPool();
 
                         if (player.UserId == _last914User.UserId && is0492)
-                            Server.SendBroadcast($"<color=orange>[<color=green>914</color>]</color> {player.Nickname} commited suicide in SCP-914!", 10, Broadcast.BroadcastFlags.AdminChat);
+                            SendAdminChat($"<color=orange>[<color=green>914</color>]</color> {player.Nickname} commited suicide in SCP-914!");
                     }
 
                     break;
@@ -112,7 +121,7 @@ internal sealed class SCP914Handler
                         SpawnPool();
 
                         if (player.UserId == _last914User.UserId && is0492)
-                            Server.SendBroadcast($"<color=orange>[<color=green>914</color>]</color> {player.Nickname} commited suicide in SCP-914!", 10, Broadcast.BroadcastFlags.AdminChat);
+                            SendAdminChat($"<color=orange>[<color=green>914</color>]</color> {player.Nickname} commited suicide in SCP-914!");
                     }
 
                     if (player.Team != Team.SCPs)
